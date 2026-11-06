@@ -1,0 +1,204 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>CartNudge — Stop shipping COD orders that come back</title>
+  <meta name="description" content="CartNudge confirms every cash-on-delivery order on WhatsApp, nudges buyers to pay online, and brings back abandoned carts. Built for Indian Shopify stores.">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght,SOFT@0,9..144,500..700,0..100;1,9..144,500..700,0..100&family=Instrument+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/site.css">
+</head>
+<body>
+<div class="grain" aria-hidden="true"></div>
+
+<header class="nav" id="nav">
+  <div class="wrap">
+    <a class="logo" href="/"><img src="/favicon.svg" alt="">CartNudge</a>
+    <nav class="nav-links" aria-label="Main">
+      <a href="#how">How it works</a>
+      <a href="#calculator">Savings</a>
+      <a href="#pricing">Pricing</a>
+      <a href="#faq">FAQ</a>
+    </nav>
+    <a class="btn btn-ink" href="#install">Install free</a>
+  </div>
+</header>
+
+<main>
+  <section class="hero" style="padding-top:64px">
+    <div class="wrap hero-grid">
+      <div>
+        <span class="eyebrow"><i></i>For Indian Shopify stores</span>
+        <h1>Stop shipping <span class="strike">fake</span> COD orders. <em>Confirm them on WhatsApp.</em></h1>
+        <p class="lede">Every cash-on-delivery order gets a WhatsApp message in seconds: confirm, pay online for a small discount, or cancel. Fewer refused parcels. More prepaid orders. Zero calling.</p>
+        <form class="install" action="/auth" method="get">
+          <label class="sr" for="shop1" hidden>Your Shopify store</label>
+          <input id="shop1" name="shop" placeholder="your-store.myshopify.com" required pattern="[a-zA-Z0-9][a-zA-Z0-9\-]*\.myshopify\.com" autocomplete="off">
+          <button class="btn btn-gold" type="submit">Install on Shopify →</button>
+        </form>
+        <p class="fine">Free for early stores · 10-minute setup · Works with your Razorpay account</p>
+      </div>
+
+      <div class="phone" aria-label="Example WhatsApp conversation">
+        <div class="screen">
+          <div class="chat-head"><div class="avatar">K</div><div><b>Kesar Threads</b><small>Business account</small></div></div>
+          <div class="chat">
+            <div class="bubble d1">Hi Priya! 👋 Thanks for your order <b>#1042</b> from Kesar Threads.<br><br>Total: <b>₹1,499</b> · Cash on delivery<br><br>Pay online now and save <b>₹50</b>.<time>11:02</time></div>
+            <div class="quick d2"><span>✅ Confirm order</span><span class="tap">💳 Pay online, save ₹50</span><span>✖ Cancel order</span></div>
+            <div class="bubble me d3">💳 Pay online, save ₹50<time>11:03 ✓✓</time></div>
+            <div class="bubble d4">Pay ₹1,449 instead of ₹1,499 for order #1042: rzp.io/l/k7Qx2 <time>11:03</time></div>
+            <div class="bubble d5">Payment received ✅ Order #1042 is now prepaid. No cash needed at delivery.<time>11:05</time></div>
+          </div>
+        </div>
+        <div class="stamp"><b>₹200</b>saved on this order</div>
+      </div>
+    </div>
+  </section>
+
+  <div class="ticker" aria-hidden="true"><div>
+    <span>Confirm every COD order</span><span>Turn COD into prepaid</span><span>Catch fake orders before they ship</span><span>Win back abandoned carts</span><span>Tags orders in Shopify automatically</span>
+    <span>Confirm every COD order</span><span>Turn COD into prepaid</span><span>Catch fake orders before they ship</span><span>Win back abandoned carts</span><span>Tags orders in Shopify automatically</span>
+  </div></div>
+
+  <section id="problem">
+    <div class="wrap">
+      <span class="kicker">The leak</span>
+      <h2 class="reveal">Every refused parcel costs you twice. Once to ship it, once to bring it back.</h2>
+      <p class="sub reveal">Indian shoppers love cash on delivery. That's why so many COD orders never get paid for: wrong numbers, impulse buys, changed minds.</p>
+      <div class="numbers">
+        <div class="num reveal"><b>60%+</b><p>of Indian ecommerce orders are placed as cash on delivery.</p></div>
+        <div class="num reveal"><b>20–40%</b><p>typical return-to-origin rate on Indian ecommerce orders, mostly COD.</p></div>
+        <div class="num reveal"><b>₹180–250</b><p>lost on each returned order: two-way shipping, packing, blocked stock.</p></div>
+      </div>
+      <p class="source">Industry estimates published by Indian logistics and D2C tooling companies, 2026.</p>
+    </div>
+  </section>
+
+  <section id="how" style="padding-top:20px">
+    <div class="wrap">
+      <span class="kicker">How it works</span>
+      <h2 class="reveal">Three taps on WhatsApp. That's the whole system.</h2>
+      <div class="steps">
+        <div class="step reveal"><span class="n">01</span><h3>An order comes in on COD</h3><p>CartNudge sees it instantly and messages the buyer on WhatsApp in seconds. No calling team, no spreadsheet.</p></div>
+        <div class="step reveal"><span class="n">02</span><h3>The buyer taps a button</h3><p>Confirm, pay online for a small discount through your own Razorpay, or cancel before you ship anything.</p></div>
+        <div class="step reveal"><span class="n">03</span><h3>Your orders get tagged</h3><p>Shopify orders are tagged <code>confirmed</code>, <code>paid-online</code> or <code>cancel-requested</code>, so your team knows exactly what to pack.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="calculator" class="dark">
+    <div class="wrap">
+      <span class="kicker">Your numbers</span>
+      <h2>How much are refused COD orders costing you?</h2>
+      <p class="sub">Move the sliders to match your store. The estimate is deliberately conservative.</p>
+      <div class="calc">
+        <div>
+          <div class="field"><label for="orders">COD orders per month <output id="ordersOut">500</output></label><input id="orders" type="range" min="50" max="5000" step="50" value="500"></div>
+          <div class="field"><label for="rto">Current return rate on COD <output id="rtoOut">25%</output></label><input id="rto" type="range" min="5" max="50" step="1" value="25"></div>
+          <div class="field"><label for="cost">Cost per returned order <output id="costOut">₹200</output></label><input id="cost" type="range" min="80" max="500" step="10" value="200"></div>
+        </div>
+        <div class="result" aria-live="polite">
+          <small>Estimated monthly savings</small>
+          <div class="big" id="saved">₹0</div>
+          <div class="row"><span>Returned orders today</span><b id="today">0</b></div>
+          <div class="row"><span>Caught before shipping (cancel taps)</span><b id="caught">0</b></div>
+          <div class="row"><span>Moved to prepaid</span><b id="prepaid">0</b></div>
+          <div class="row"><span>CartNudge cost</span><b>₹999</b></div>
+        </div>
+      </div>
+      <p class="source">Assumes 10% of orders that would have come back get cancelled on WhatsApp before shipping, and 15% of COD buyers switch to prepaid. Your dashboard shows your real numbers.</p>
+    </div>
+  </section>
+
+  <section id="pricing">
+    <div class="wrap">
+      <span class="kicker">Pricing</span>
+      <h2 class="reveal">One plan. Pays for itself with five saved parcels.</h2>
+      <div class="price-grid">
+        <div class="plan reveal">
+          <span class="tag">Growth</span>
+          <div class="cost">₹999<span> / month</span></div>
+          <ul>
+            <li>WhatsApp confirmation for every COD order</li>
+            <li>Prepaid nudge with your own Razorpay links</li>
+            <li>Abandoned cart reminders with click tracking</li>
+            <li>Automatic Shopify order tags and notes</li>
+            <li>Live savings dashboard inside Shopify admin</li>
+          </ul>
+          <a class="btn btn-ink" href="#install">Start 7-day free trial</a>
+          <p class="fine">Billed through Shopify (about $12). Cancel any time. WhatsApp conversation charges from Meta are separate.</p>
+        </div>
+        <div class="beta reveal">
+          <div>
+            <h3>Early store? It's free while we're in beta.</h3>
+            <p>We're onboarding our first stores by hand. We'll set it up with you and you pay nothing until it has saved you money.</p>
+          </div>
+          <a class="btn btn-ink" href="mailto:upparikarthik505@gmail.com?subject=CartNudge%20beta">Talk to the founder →</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="faq" style="padding-top:20px">
+    <div class="wrap">
+      <span class="kicker">Questions</span>
+      <h2>Good to know</h2>
+      <div class="faq">
+        <details><summary>Do I need my own WhatsApp Business number?</summary><p>No. In beta, messages go out from the CartNudge number with your store's name in the text. You can connect your own WhatsApp Business API number in settings any time.</p></details>
+        <details><summary>Where does the online payment go?</summary><p>Straight to your Razorpay account. CartNudge creates a payment link with your keys and never touches the money.</p></details>
+        <details><summary>Does CartNudge cancel orders automatically?</summary><p>No. When a buyer taps cancel, the order is tagged and a note says "do not ship". You stay in control of what gets cancelled.</p></details>
+        <details><summary>What if the buyer doesn't reply?</summary><p>The order stays tagged as pending, so you can choose to call, hold or ship as usual. Nothing changes without your say.</p></details>
+        <details><summary>What data do you keep?</summary><p>Only what's needed: order number, amount, first name, phone and the button they tapped. Data is deleted when you uninstall, as Shopify's privacy rules require.</p></details>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="final" id="install">
+      <span class="kicker">Ready when you are</span>
+      <h2>Your next refused parcel is already in the queue.</h2>
+      <form class="install" action="/auth" method="get">
+        <input name="shop" aria-label="Your Shopify store" placeholder="your-store.myshopify.com" required pattern="[a-zA-Z0-9][a-zA-Z0-9\-]*\.myshopify\.com" autocomplete="off">
+        <button class="btn btn-gold" type="submit">Install CartNudge →</button>
+      </form>
+    </div>
+    <div class="foot">
+      <span>© 2026 CartNudge · Made in Hyderabad</span>
+      <nav><a href="#faq">Privacy</a><a href="mailto:upparikarthik505@gmail.com">Contact</a></nav>
+    </div>
+  </div>
+</footer>
+
+<script>
+  const nav = document.getElementById('nav');
+  addEventListener('scroll', () => nav.classList.toggle('scrolled', scrollY > 10), { passive: true });
+
+  const io = new IntersectionObserver(entries => entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('on'); io.unobserve(e.target); } }), { threshold: .15 });
+  document.querySelectorAll('.reveal').forEach((el, i) => { el.style.transitionDelay = `${(i % 3) * 90}ms`; io.observe(el); });
+
+  const $ = id => document.getElementById(id);
+  const inr = n => '₹' + Math.round(n).toLocaleString('en-IN');
+  function calc() {
+    const orders = +$('orders').value, rto = +$('rto').value / 100, cost = +$('cost').value;
+    const returned = orders * rto;
+    const caughtOrders = Math.round(returned * 0.10);
+    const prepaidOrders = Math.round(orders * 0.15);
+    const saved = caughtOrders * cost + prepaidOrders * cost * rto - 999;
+    $('ordersOut').textContent = orders.toLocaleString('en-IN');
+    $('rtoOut').textContent = Math.round(rto * 100) + '%';
+    $('costOut').textContent = inr(cost);
+    $('today').textContent = Math.round(returned).toLocaleString('en-IN');
+    $('caught').textContent = caughtOrders.toLocaleString('en-IN');
+    $('prepaid').textContent = prepaidOrders.toLocaleString('en-IN');
+    $('saved').textContent = inr(Math.max(0, saved));
+  }
+  ['orders', 'rto', 'cost'].forEach(id => $(id).addEventListener('input', calc));
+  calc();
+</script>
+</body>
+</html>

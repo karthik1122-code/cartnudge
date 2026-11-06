@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="shopify-api-key" content="%%apiKey%%">
+  <title>CartNudge</title>
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <script src="https://cdn.shopify.com/shopifycloud/app-bridge.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500..700&family=Instrument+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/app.css">
+</head>
+<body>
+  <main class="shell">
+    <header class="top">
+      <div>
+        <p class="hello">CartNudge for <b id="storeName">your store</b></p>
+        <h1>Money you didn't lose this month</h1>
+      </div>
+      <div class="pills" id="pills"></div>
+    </header>
+
+    <div class="banner" id="banner" hidden></div>
+
+    <section class="hero-card">
+      <div>
+        <small>Estimated savings from returns avoided</small>
+        <div class="saved" id="saved">₹0</div>
+        <p class="formula" id="formula"></p>
+      </div>
+      <div class="split">
+        <div><b id="fromCancels">₹0</b><span>from orders cancelled before shipping</span></div>
+        <div><b id="fromPrepaid">₹0</b><span>from orders moved to prepaid</span></div>
+      </div>
+    </section>
+
+    <section class="kpis">
+      <article><span>COD orders messaged</span><b id="messaged">0</b><em id="responseRate">0% replied</em></article>
+      <article><span>Confirmed</span><b id="confirmed">0</b><em>ship as normal</em></article>
+      <article><span>Paid online</span><b id="paidOnline">0</b><em id="prepaidValue">₹0 collected</em></article>
+      <article><span>Cancel requests</span><b id="cancelRequested">0</b><em>not shipped</em></article>
+      <article><span>Carts recovered</span><b id="cartsRecovered">0</b><em id="cartValue">₹0 revenue</em></article>
+    </section>
+
+    <section class="cols">
+      <div class="panel">
+        <h2>How buyers replied</h2>
+        <div class="funnel" id="funnel"></div>
+        <h2 style="margin-top:28px">Recent activity</h2>
+        <ol class="feed" id="feed"><li class="empty">Nothing yet. Your first COD order will show up here.</li></ol>
+      </div>
+
+      <form class="panel settings" id="settings">
+        <h2>Settings</h2>
+        <label class="toggle"><input type="checkbox" name="codConfirmEnabled"><span></span>Confirm COD orders on WhatsApp</label>
+        <label class="toggle"><input type="checkbox" name="prepaidNudgeEnabled"><span></span>Offer a discount to pay online</label>
+        <label class="toggle"><input type="checkbox" name="cartRemindersEnabled"><span></span>Remind abandoned carts</label>
+        <label class="toggle"><input type="checkbox" name="poweredBy"><span></span>Show "sent with CartNudge" (helps us grow)</label>
+
+        <div class="grid2">
+          <label>Prepaid discount (₹)<input type="number" name="prepaidDiscountRupees" min="0" max="5000"></label>
+          <label>Cart reminder after (min)<input type="number" name="cartDelayMinutes" min="15" max="1440"></label>
+          <label>Cost of one returned order (₹)<input type="number" name="rtoCostRupees" min="0" max="5000"></label>
+          <label>Your usual COD return rate (%)<input type="number" name="codRtoRatePercent" min="0" max="100"></label>
+        </div>
+        <label>Store name in messages<input type="text" name="brandName" maxlength="60" placeholder="Uses your Shopify store name"></label>
+
+        <h3>Razorpay (for pay-online links)</h3>
+        <label>Key ID<input type="text" name="razorpayKeyId" placeholder="rzp_live_…" autocomplete="off"></label>
+        <label>Key secret<input type="password" name="razorpayKeySecret" autocomplete="new-password" placeholder="•••••• (leave blank to keep)"></label>
+        <label>Webhook secret<input type="password" name="razorpayWebhookSecret" autocomplete="new-password" placeholder="•••••• (leave blank to keep)"></label>
+        <p class="hint">In Razorpay → Settings → Webhooks, add <code id="rzpUrl"></code> with the event <b>payment_link.paid</b> and the same secret.</p>
+
+        <details>
+          <summary>Use my own WhatsApp Business number</summary>
+          <label>Phone number ID<input type="text" name="waPhoneNumberId" inputmode="numeric" autocomplete="off"></label>
+          <label>Access token<input type="password" name="waAccessToken" autocomplete="new-password" placeholder="•••••• (leave blank to keep)"></label>
+        </details>
+
+        <div class="actions">
+          <button class="btn" type="submit">Save settings</button>
+          <span class="status" id="saveStatus" role="status"></span>
+        </div>
+
+        <h3>Send yourself a test</h3>
+        <div class="inline">
+          <input type="tel" id="testPhone" placeholder="98765 43210" aria-label="Your WhatsApp number">
+          <button class="btn ghost" type="button" id="testBtn">Send test</button>
+        </div>
+        <span class="status" id="testStatus" role="status"></span>
+      </form>
+    </section>
+  </main>
+  <script src="/app.js" type="module"></script>
+</body>
+</html>
