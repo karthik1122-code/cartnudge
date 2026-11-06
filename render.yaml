@@ -1,0 +1,35 @@
+services:
+  - type: web
+    name: cartnudge
+    runtime: node
+    plan: starter            # a persistent disk needs a paid instance
+    buildCommand: "true"
+    startCommand: node src/server.mjs
+    healthCheckPath: /health
+    disk:
+      name: cartnudge-data
+      mountPath: /var/data
+      sizeGB: 1
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATA_DIR
+        value: /var/data
+      - key: APP_SECRET
+        generateValue: true
+      - key: APP_URL
+        sync: false
+      - key: SHOPIFY_API_KEY
+        sync: false
+      - key: SHOPIFY_API_SECRET
+        sync: false
+      - key: WA_PHONE_NUMBER_ID
+        sync: false
+      - key: WA_ACCESS_TOKEN
+        sync: false
+      - key: WA_APP_SECRET
+        sync: false
+      - key: WA_VERIFY_TOKEN
+        generateValue: true
+      - key: BILLING_REQUIRED
+        value: "false"

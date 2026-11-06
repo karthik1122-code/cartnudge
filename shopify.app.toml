@@ -1,0 +1,23 @@
+# Shopify app configuration. Replace client_id and the URLs with yours, then run `shopify app deploy`
+# (or copy the same values into the Partner Dashboard by hand).
+name = "CartNudge"
+client_id = "REPLACE_WITH_SHOPIFY_API_KEY"
+application_url = "https://cartnudge.onrender.com/app"
+embedded = true
+
+[access_scopes]
+scopes = "read_orders,write_orders,read_checkouts,read_customers"
+
+[auth]
+redirect_urls = ["https://cartnudge.onrender.com/auth/callback"]
+
+[webhooks]
+api_version = "2025-10"
+
+  # Mandatory privacy webhooks for App Store apps.
+  [[webhooks.subscriptions]]
+  compliance_topics = ["customers/data_request", "customers/redact", "shop/redact"]
+  uri = "https://cartnudge.onrender.com/webhooks/shopify"
+
+[pos]
+embedded = false
