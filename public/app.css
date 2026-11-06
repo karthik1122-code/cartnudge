@@ -80,3 +80,5 @@ details { margin: 14px 0 4px; } summary { cursor: pointer; font-weight: 600; mar
   .kpis { grid-template-columns: repeat(2, 1fr); }
   .cols, .hero-card { grid-template-columns: 1fr; }
 }
+
+.formula.bill { margin-top: 10px; opacity: .9; color: var(--marigold); font-weight: 600; }

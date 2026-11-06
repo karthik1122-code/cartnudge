@@ -39,7 +39,7 @@
           <input id="shop1" name="shop" placeholder="your-store.myshopify.com" required pattern="[a-zA-Z0-9][a-zA-Z0-9\-]*\.myshopify\.com" autocomplete="off">
           <button class="btn btn-gold" type="submit">Install on Shopify →</button>
         </form>
-        <p class="fine">Free for early stores · 10-minute setup · Works with your Razorpay account</p>
+        <p class="fine">Pay only for parcels we save · 10-minute setup · Works with your Razorpay account</p>
       </div>
 
       <div class="phone" aria-label="Example WhatsApp conversation">
@@ -106,7 +106,7 @@
           <div class="row"><span>Returned orders today</span><b id="today">0</b></div>
           <div class="row"><span>Caught before shipping (cancel taps)</span><b id="caught">0</b></div>
           <div class="row"><span>Moved to prepaid</span><b id="prepaid">0</b></div>
-          <div class="row"><span>CartNudge cost</span><b>₹999</b></div>
+          <div class="row"><span>CartNudge cost (₹15 per saved parcel)</span><b id="fee">₹0</b></div>
         </div>
       </div>
       <p class="source">Assumes 10% of orders that would have come back get cancelled on WhatsApp before shipping, and 15% of COD buyers switch to prepaid. Your dashboard shows your real numbers.</p>
@@ -116,27 +116,30 @@
   <section id="pricing">
     <div class="wrap">
       <span class="kicker">Pricing</span>
-      <h2 class="reveal">One plan. Pays for itself with five saved parcels.</h2>
+      <h2 class="reveal">Pay only for parcels we save you.</h2>
+      <p class="sub reveal">No monthly fee. No setup fee. If CartNudge doesn't save a parcel, you pay nothing.</p>
       <div class="price-grid">
         <div class="plan reveal">
-          <span class="tag">Growth</span>
-          <div class="cost">₹999<span> / month</span></div>
+          <span class="tag">Pay-per-save</span>
+          <div class="cost">₹15<span> per saved parcel</span></div>
+          <p class="fine" style="margin-top:10px">A saved parcel is a COD order the buyer cancelled before you shipped it, or one they paid for online. Confirmed COD orders are free.</p>
           <ul>
             <li>WhatsApp confirmation for every COD order</li>
             <li>Prepaid nudge with your own Razorpay links</li>
             <li>Abandoned cart reminders with click tracking</li>
             <li>Automatic Shopify order tags and notes</li>
             <li>Live savings dashboard inside Shopify admin</li>
+            <li>Capped at ₹2,999 a month, however much we save</li>
           </ul>
-          <a class="btn btn-ink" href="#install">Start 7-day free trial</a>
-          <p class="fine">Billed through Shopify (about $12). Cancel any time. WhatsApp conversation charges from Meta are separate.</p>
+          <a class="btn btn-ink" href="#install">Install free</a>
+          <p class="fine">Billed through Shopify (about US$0.16 per saved parcel, capped at US$32 a month). WhatsApp message charges from Meta are included.</p>
         </div>
         <div class="beta reveal">
           <div>
-            <h3>Early store? It's free while we're in beta.</h3>
-            <p>We're onboarding our first stores by hand. We'll set it up with you and you pay nothing until it has saved you money.</p>
+            <h3>The founder sets it up with you, the same day.</h3>
+            <p>Tell us your store and we'll install it, write your messages and test it with you on WhatsApp. Early stores pay nothing during the beta.</p>
           </div>
-          <a class="btn btn-ink" href="mailto:upparikarthik505@gmail.com?subject=CartNudge%20beta">Talk to the founder →</a>
+          <a class="btn btn-ink" href="mailto:cartnudge.app@gmail.com?subject=CartNudge%20setup">Book a setup →</a>
         </div>
       </div>
     </div>
@@ -169,7 +172,7 @@
     </div>
     <div class="foot">
       <span>© 2026 CartNudge · Made in Hyderabad</span>
-      <nav><a href="#faq">Privacy</a><a href="mailto:upparikarthik505@gmail.com">Contact</a></nav>
+      <nav><a href="#faq">Privacy</a><a href="mailto:cartnudge.app@gmail.com">Contact</a></nav>
     </div>
   </div>
 </footer>
@@ -188,7 +191,9 @@
     const returned = orders * rto;
     const caughtOrders = Math.round(returned * 0.10);
     const prepaidOrders = Math.round(orders * 0.15);
-    const saved = caughtOrders * cost + prepaidOrders * cost * rto - 999;
+    const fee = Math.min((caughtOrders + prepaidOrders) * 15, 2999);
+    const saved = caughtOrders * cost + prepaidOrders * cost * rto - fee;
+    $('fee').textContent = inr(fee);
     $('ordersOut').textContent = orders.toLocaleString('en-IN');
     $('rtoOut').textContent = Math.round(rto * 100) + '%';
     $('costOut').textContent = inr(cost);

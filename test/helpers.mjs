@@ -9,14 +9,14 @@ export function testConfig(overrides = {}) {
     port: 0, appUrl: 'https://cartnudge.test', dataDir: null, production: false, appSecret: APP_SECRET,
     shopify: { apiKey: 'test-key', apiSecret: 'shpss_test_secret', scopes: 'read_orders,write_orders', apiVersion: '2025-10' },
     whatsapp: { phoneNumberId: '', accessToken: '', appSecret: 'wa-app-secret', verifyToken: 'verify-me', graphVersion: 'v21.0', templateLanguage: 'en', codTemplate: 'cod_confirm', cartTemplate: 'cart_reminder' },
-    billing: { planName: 'CartNudge Growth', priceUsd: 12, trialDays: 7, test: true, required: false },
+    billing: { planName: 'CartNudge Pay-per-save', parcelPriceInr: 15, parcelPriceUsd: 0.16, monthlyCapInr: 2999, monthlyCapUsd: 32, test: true, required: false },
     cartSweepMinutes: 5, devShop: '',
     ...overrides,
   };
 }
 
 export function fakes() {
-  const calls = { templates: [], texts: [], tagsAdded: [], tagsRemoved: [], notes: [], links: [] };
+  const calls = { templates: [], texts: [], tagsAdded: [], tagsRemoved: [], notes: [], links: [], usage: [] };
   const whatsapp = () => ({
     live: true,
     async sendTemplate(args) { calls.templates.push(args); return { id: `wamid.${calls.templates.length}`, dryRun: false }; },
@@ -26,6 +26,7 @@ export function fakes() {
     async addTags(id, tags) { calls.tagsAdded.push([id, ...tags]); },
     async removeTags(id, tags) { calls.tagsRemoved.push([id, ...tags]); },
     async appendNote(id, line) { calls.notes.push([id, line]); },
+    async recordUsage(args) { calls.usage.push(args); return { appUsageRecord: { id: 'ur_1' } }; },
   });
   const createPaymentLink = async args => { calls.links.push(args); return { id: 'plink_1', url: 'https://rzp.io/l/abc', amountRupees: args.amountRupees }; };
   return { calls, deps: { whatsapp, admin, createPaymentLink } };

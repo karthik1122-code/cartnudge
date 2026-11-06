@@ -169,3 +169,38 @@ test('settings validate input and keep secrets encrypted and hidden', async () =
   await engine.updateSettings(SHOP, { razorpayKeySecret: '-' });
   assert.equal(engine.settingsFor(SHOP).razorpayKeySecret, '');
 });
+
+test('pay-per-save: each saved parcel is charged once to the usage line item', async () => {
+  const { engine, calls, store } = await setup(RZP, { billing: { ...testConfig().billing, required: true } });
+  await store.saveShop(SHOP, { subscription: { status: 'ACTIVE', usageLineItemId: 'gid://shopify/AppSubscriptionLineItem/1' } });
+  for (const id of [1, 2, 3]) await engine.handleOrderCreated(SHOP, codOrder({ id }));
+  await engine.handleReply(tap('confirm', '1'));
+  await engine.handleReply(tap('cancel', '2'));
+  await engine.handleReply(tap('prepaid', '3'));
+  await engine.handlePaidLink({ shop: SHOP, orderId: '3', linkId: 'plink_1', amountRupees: 1449 });
+  await engine.handlePaidLink({ shop: SHOP, orderId: '3', linkId: 'plink_1', amountRupees: 1449 });
+  assert.equal(calls.usage.length, 2, 'confirm is free; cancel and prepaid are charged once each');
+  assert.equal(calls.usage[0].priceUsd, 0.16);
+  assert.equal(calls.usage[0].lineItemId, 'gid://shopify/AppSubscriptionLineItem/1');
+  assert.match(calls.usage[0].idempotencyKey, /2$/);
+  const stats = engine.stats(SHOP);
+  assert.equal(stats.billing.parcelsSavedThisMonth, 2);
+  assert.equal(stats.billing.chargedInr, 30);
+});
+
+test('pay-per-save: beta stores are not charged and over-cap charges are skipped', async () => {
+  const beta = await setup();
+  await beta.engine.handleOrderCreated(SHOP, codOrder());
+  await beta.engine.handleReply(tap('cancel'));
+  assert.equal(beta.calls.usage.length, 0);
+  assert.equal(beta.engine.stats(SHOP).billing.waivedInr, 15);
+
+  const { engine, store } = await setup(RZP, { billing: { ...testConfig().billing, required: true } });
+  await store.saveShop(SHOP, { subscription: { status: 'ACTIVE', usageLineItemId: 'li' } });
+  const capped = createEngine({ store, config: testConfig({ billing: { ...testConfig().billing, required: true } }), logger: { error() {}, info() {} },
+    deps: { ...fakes().deps, admin: () => ({ ...fakes().deps.admin(), async recordUsage() { throw new Error('appUsageRecordCreate: Total price exceeds balance remaining'); } }) } });
+  await capped.handleOrderCreated(SHOP, codOrder({ id: 7 }));
+  await capped.handleReply(tap('cancel', '7'));
+  assert.equal(store.getOrder(SHOP, '7').billing.status, 'capped');
+  assert.ok(engine);
+});

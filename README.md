@@ -16,6 +16,12 @@ The embedded dashboard in Shopify admin shows estimated savings, how buyers repl
 
 ![Dashboard](docs/dashboard.png)
 
+## Pricing: pay-per-save
+
+The store pays **₹15 (US$0.16) for each parcel CartNudge saves**: a COD order the buyer cancelled before shipping, or one moved to prepaid. Confirmed COD orders are free. There is no monthly fee, and charges are capped at ₹2,999 (US$32) per 30 days.
+
+It runs on Shopify usage billing: a usage-only `appSubscriptionCreate` with a capped amount, plus one `appUsageRecordCreate` per saved parcel. The idempotency key is the order, so a parcel is never charged twice. While `BILLING_REQUIRED=false` (beta), saved parcels are counted on the dashboard but not charged.
+
 ## How the savings number is calculated
 
 It's deliberately conservative:
@@ -63,7 +69,7 @@ DEV_SHOP=demo.myshopify.com npm run dev
 Open http://localhost:3000 for the landing page and http://localhost:3000/app for the dashboard with demo data.
 
 ```bash
-npm test                      # 28 tests
+npm test                      # 30 tests
 ```
 
 ## Go live: step by step
@@ -82,7 +88,7 @@ npm test                      # 28 tests
 4. **Install on a development store:** `https://YOUR_URL/auth?shop=your-dev-store.myshopify.com`.
 5. **Connect Razorpay** in the dashboard settings (Key ID, Key secret, Webhook secret). Then add the shown webhook URL in Razorpay with the event `payment_link.paid`.
 6. **Test it.** Place a COD test order with your own number and tap each button.
-7. **Turn on billing** when you're ready: `BILLING_REQUIRED=true` and `BILLING_LIVE=true`.
+7. **Turn on billing** when you're ready: `BILLING_REQUIRED=true` and `BILLING_LIVE=true`. Each store approves the pay-per-save plan once from the dashboard.
 
 ## Limits to know
 

@@ -92,6 +92,44 @@ export function createEngine({ store, config, deps, logger = console, now = () =
     catch (error) { logger.error?.(`[note] ${shop} order ${orderId}: ${error.message}`); }
   }
 
+  // ---------------------------------------------------------------- pay-per-save billing
+
+  // Called once per order when CartNudge saves a parcel (cancel caught before shipping, or moved to prepaid).
+  async function chargeSavedParcel(shop, orderId, reason) {
+    const order = store.getOrder(shop, orderId);
+    if (!order || order.billing) return order?.billing || null;
+    const { parcelPriceInr, parcelPriceUsd } = config.billing;
+    const base = { reason, priceInr: parcelPriceInr, at: new Date(now()).toISOString() };
+    if (!config.billing.required) {
+      const billing = { ...base, status: 'free_beta' };
+      await store.saveOrder(shop, orderId, { billing });
+      return billing;
+    }
+    const lineItemId = store.getShop(shop)?.subscription?.usageLineItemId;
+    if (!lineItemId) {
+      const billing = { ...base, status: 'unbilled', note: 'No active pay-per-save plan' };
+      await store.saveOrder(shop, orderId, { billing });
+      return billing;
+    }
+    try {
+      await deps.admin(shop).recordUsage({
+        lineItemId, priceUsd: parcelPriceUsd,
+        description: `Parcel saved: order ${order.name} (${reason === 'cancel_requested' ? 'cancelled before shipping' : 'moved to prepaid'})`,
+        idempotencyKey: `cn-${shop}-${orderId}`.slice(0, 64),
+      });
+      const billing = { ...base, status: 'charged' };
+      await store.saveOrder(shop, orderId, { billing });
+      return billing;
+    } catch (error) {
+      // Over the monthly cap Shopify refuses the record; the store is simply not charged.
+      const status = /cap|exceed/i.test(error.message) ? 'capped' : 'failed';
+      const billing = { ...base, status, note: error.message };
+      await store.saveOrder(shop, orderId, { billing });
+      if (status === 'failed') await store.logEvent(shop, 'error', { orderId, message: `Usage charge failed: ${error.message}` });
+      return billing;
+    }
+  }
+
   // ---------------------------------------------------------------- orders/create
 
   async function handleOrderCreated(shop, order) {
@@ -185,6 +223,7 @@ export function createEngine({ store, config, deps, logger = console, now = () =
       await safeTag(shop, orderId, [TAGS.cancelled], [TAGS.pending]);
       await safeNote(shop, orderId, `CartNudge: customer asked to cancel this COD order on WhatsApp (${stamp}). Do not ship.`);
       await store.logEvent(shop, 'cancel_requested', { orderId, order: order.name, amount: order.amount });
+      await chargeSavedParcel(shop, orderId, 'cancel_requested');
       await say(`Okay, we've told ${brand(shop, settings)} that you don't want order ${order.name}. It will not be shipped.`);
       return { status: 'cancel_requested' };
     }
@@ -228,6 +267,7 @@ export function createEngine({ store, config, deps, logger = console, now = () =
     await safeTag(paid.shop, paid.orderId, [TAGS.prepaid], [TAGS.pending]);
     await safeNote(paid.shop, paid.orderId, `CartNudge: customer paid ${rupees(paid.amountRupees)} online via Razorpay (payment ${paid.paymentId || paid.linkId}). Ship as PREPAID — do not collect cash.`);
     await store.logEvent(paid.shop, 'paid_online', { orderId: paid.orderId, order: order.name, amount: paid.amountRupees });
+    await chargeSavedParcel(paid.shop, paid.orderId, 'paid_online');
     const settings = settingsFor(paid.shop);
     await deps.whatsapp(settings).sendText({ to: order.phone, text: `Payment received ✅ Order ${order.name} is now prepaid. No cash needed at delivery.${footer(settings)}` })
       .catch(error => logger.error?.(`[whatsapp] paid receipt failed: ${error.message}`));
@@ -327,6 +367,17 @@ export function createEngine({ store, config, deps, logger = console, now = () =
     const savedFromCancels = cancelRequested * settings.rtoCostRupees;
     const savedFromPrepaid = paidOnline * settings.rtoCostRupees * (settings.codRtoRatePercent / 100);
 
+    const monthStart = new Date(now()); monthStart.setUTCDate(1); monthStart.setUTCHours(0, 0, 0, 0);
+    const billedThisMonth = orders.filter(o => o.billing && Date.parse(o.billing.at) >= monthStart.getTime());
+    const sumInr = statuses => billedThisMonth.filter(o => statuses.includes(o.billing.status)).reduce((sum, o) => sum + o.billing.priceInr, 0);
+    const billing = {
+      parcelsSavedThisMonth: billedThisMonth.length,
+      chargedInr: Math.min(sumInr(['charged']), config.billing.monthlyCapInr),
+      waivedInr: sumInr(['free_beta', 'unbilled', 'capped']),
+      parcelPriceInr: config.billing.parcelPriceInr,
+      monthlyCapInr: config.billing.monthlyCapInr,
+    };
+
     const checkouts = store.listCheckouts(shop);
     const reminded = checkouts.filter(c => c.remindedAt && !c.error).length;
     const recovered = checkouts.filter(c => c.recoveredAt);
@@ -344,6 +395,7 @@ export function createEngine({ store, config, deps, logger = console, now = () =
         rtoCostRupees: settings.rtoCostRupees,
         codRtoRatePercent: settings.codRtoRatePercent,
       },
+      billing,
       carts: {
         tracked: checkouts.length, reminded,
         clicked: checkouts.filter(c => c.clickedAt).length,

@@ -56,6 +56,10 @@ function render(data) {
   $('paidOnline').textContent = stats.cod.paidOnline;
   $('prepaidValue').textContent = `${inr(stats.cod.prepaidValue)} collected`;
   $('cancelRequested').textContent = stats.cod.cancelRequested;
+  const b = stats.billing;
+  $('billLine').textContent = b.chargedInr
+    ? `${b.parcelsSavedThisMonth} parcels saved this month · billed ${inr(b.chargedInr)} (₹${b.parcelPriceInr} each, capped at ${inr(b.monthlyCapInr)})`
+    : `${b.parcelsSavedThisMonth} parcels saved this month · ${b.waivedInr ? `${inr(b.waivedInr)} not charged (free beta)` : `₹${b.parcelPriceInr} per saved parcel when billing starts`}`;
   $('cartsRecovered').textContent = stats.carts.recovered;
   $('cartValue').textContent = `${inr(stats.carts.recoveredValue)} revenue`;
 
@@ -103,8 +107,8 @@ function render(data) {
   const banner = $('banner');
   if (data.billingRequired && data.subscription?.status !== 'ACTIVE') {
     banner.hidden = false;
-    banner.innerHTML = '<span></span><button class="btn gold" type="button">Start free trial</button>';
-    banner.firstChild.textContent = `Messages are paused. Start your ${data.plan.trialDays}-day free trial of ${data.plan.name} ($${data.plan.priceUsd}/month, billed by Shopify).`;
+    banner.innerHTML = '<span></span><button class="btn gold" type="button">Turn on pay-per-save</button>';
+    banner.firstChild.textContent = `Messages are paused. Turn on ${data.plan.name}: ₹${data.plan.parcelPriceInr} per saved parcel, no monthly fee, capped at ₹${data.plan.monthlyCapInr.toLocaleString('en-IN')} a month (billed by Shopify).`;
     banner.querySelector('button').onclick = subscribe;
   } else banner.hidden = true;
 
