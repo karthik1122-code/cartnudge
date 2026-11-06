@@ -35,9 +35,13 @@ export const config = {
   },
 
   billing: {
-    planName: env.PLAN_NAME || 'CartNudge Growth',
-    priceUsd: num(env.PLAN_PRICE_USD, 12),
-    trialDays: num(env.PLAN_TRIAL_DAYS, 7),
+    planName: env.PLAN_NAME || 'CartNudge Pay-per-save',
+    // Usage pricing: the store pays only for parcels CartNudge saves (a cancel caught before shipping,
+    // or a COD order moved to prepaid). Shopify bills apps in USD; INR values are for display.
+    parcelPriceInr: num(env.PARCEL_PRICE_INR, 15),
+    parcelPriceUsd: num(env.PARCEL_PRICE_USD, 0.16),
+    monthlyCapInr: num(env.MONTHLY_CAP_INR, 2999),
+    monthlyCapUsd: num(env.MONTHLY_CAP_USD, 32),
     // Shopify test charges unless explicitly live.
     test: env.BILLING_LIVE !== 'true',
     // Off while onboarding free beta stores; turn on to require an active plan before messages are sent.

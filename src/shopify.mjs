@@ -102,21 +102,38 @@ export function createAdminClient({ shop, accessToken, apiVersion, fetchImpl = f
       return results;
     },
 
-    async createSubscription({ name, priceUsd, trialDays, returnUrl, test }) {
+    // Usage-only subscription: no monthly fee, charges are capped per 30-day period.
+    async createUsageSubscription({ name, terms, cappedUsd, returnUrl, test }) {
       const data = await graphql(
-        `mutation($name: String!, $returnUrl: URL!, $trialDays: Int, $test: Boolean, $lineItems: [AppSubscriptionLineItemInput!]!) {
-           appSubscriptionCreate(name: $name, returnUrl: $returnUrl, trialDays: $trialDays, test: $test, lineItems: $lineItems) {
+        `mutation($name: String!, $returnUrl: URL!, $test: Boolean, $lineItems: [AppSubscriptionLineItemInput!]!) {
+           appSubscriptionCreate(name: $name, returnUrl: $returnUrl, test: $test, lineItems: $lineItems) {
              confirmationUrl appSubscription { id status } userErrors { field message } } }`,
-        {
-          name, returnUrl, trialDays, test,
-          lineItems: [{ plan: { appRecurringPricingDetails: { price: { amount: priceUsd, currencyCode: 'USD' }, interval: 'EVERY_30_DAYS' } } }],
-        });
+        { name, returnUrl, test, lineItems: [{ plan: { appUsagePricingDetails: { terms, cappedAmount: { amount: cappedUsd, currencyCode: 'USD' } } } }] });
       return userErrors(data, 'appSubscriptionCreate');
     },
 
     async activeSubscription() {
-      const data = await graphql('{ currentAppInstallation { activeSubscriptions { id name status trialDays currentPeriodEnd test } } }');
-      return data.currentAppInstallation.activeSubscriptions[0] || null;
+      const data = await graphql(`{ currentAppInstallation { activeSubscriptions {
+        id name status test currentPeriodEnd
+        lineItems { id plan { pricingDetails { __typename ... on AppUsagePricing { terms cappedAmount { amount } balanceUsed { amount } } } } } } } }`);
+      const sub = data.currentAppInstallation.activeSubscriptions[0];
+      if (!sub) return null;
+      const usage = sub.lineItems.find(item => item.plan?.pricingDetails?.__typename === 'AppUsagePricing');
+      return {
+        id: sub.id, name: sub.name, status: sub.status, test: sub.test, currentPeriodEnd: sub.currentPeriodEnd,
+        usageLineItemId: usage?.id || null,
+        cappedUsd: Number(usage?.plan.pricingDetails.cappedAmount?.amount ?? 0),
+        usedUsd: Number(usage?.plan.pricingDetails.balanceUsed?.amount ?? 0),
+      };
+    },
+
+    async recordUsage({ lineItemId, priceUsd, description, idempotencyKey }) {
+      const data = await graphql(
+        `mutation($id: ID!, $price: MoneyInput!, $description: String!, $key: String) {
+           appUsageRecordCreate(subscriptionLineItemId: $id, price: $price, description: $description, idempotencyKey: $key) {
+             appUsageRecord { id } userErrors { field message } } }`,
+        { id: lineItemId, price: { amount: priceUsd, currencyCode: 'USD' }, description, key: idempotencyKey });
+      return userErrors(data, 'appUsageRecordCreate');
     },
   };
 }

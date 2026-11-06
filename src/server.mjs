@@ -106,7 +106,7 @@ export async function createApp({ config = defaultConfig, store, deps = {}, logg
         if (!config.devShop) {
           try {
             const live = await adminFor(shop).activeSubscription();
-            subscription = live ? { id: live.id, status: live.status, name: live.name, test: live.test, currentPeriodEnd: live.currentPeriodEnd } : null;
+            subscription = live;
             await store.saveShop(shop, { subscription });
           } catch (error) { logger.error?.(`[billing] ${shop}: ${error.message}`); }
         }
@@ -118,7 +118,7 @@ export async function createApp({ config = defaultConfig, store, deps = {}, logg
           events: store.listEvents(shop, 25),
           subscription,
           billingRequired: config.billing.required,
-          plan: { name: config.billing.planName, priceUsd: config.billing.priceUsd, trialDays: config.billing.trialDays },
+          plan: { name: config.billing.planName, parcelPriceInr: config.billing.parcelPriceInr, monthlyCapInr: config.billing.monthlyCapInr },
           whatsappLive: Boolean((engine.settingsFor(shop).waPhoneNumberId || config.whatsapp.phoneNumberId) && (engine.settingsFor(shop).waAccessToken || config.whatsapp.accessToken)),
           razorpayWebhookUrl: `${config.appUrl}/webhooks/razorpay/${shop}`,
         });
@@ -129,8 +129,10 @@ export async function createApp({ config = defaultConfig, store, deps = {}, logg
       }
 
       if (method === 'POST' && path === '/api/billing/subscribe') {
-        const result = await adminFor(shop).createSubscription({
-          name: config.billing.planName, priceUsd: config.billing.priceUsd, trialDays: config.billing.trialDays,
+        const { parcelPriceInr, parcelPriceUsd, monthlyCapInr, monthlyCapUsd } = config.billing;
+        const result = await adminFor(shop).createUsageSubscription({
+          name: config.billing.planName, cappedUsd: monthlyCapUsd,
+          terms: `₹${parcelPriceInr} (US$${parcelPriceUsd}) per parcel saved: a COD order cancelled before shipping or moved to prepaid. No monthly fee. Capped at ₹${monthlyCapInr} (US$${monthlyCapUsd}) per 30 days.`,
           returnUrl: `https://${shop}/admin/apps/${config.shopify.apiKey}`, test: config.billing.test,
         });
         return json(response, 200, { confirmationUrl: result.confirmationUrl });
@@ -226,7 +228,13 @@ export async function createApp({ config = defaultConfig, store, deps = {}, logg
         return store.logEvent(shop, 'uninstalled');
       case 'app_subscriptions/update': {
         const sub = body?.app_subscription || {};
-        await store.saveShop(shop, { subscription: { id: sub.admin_graphql_api_id, status: String(sub.status || '').toUpperCase(), name: sub.name } });
+        const previous = store.getShop(shop)?.subscription || {};
+        let subscription = { ...previous, id: sub.admin_graphql_api_id, status: String(sub.status || '').toUpperCase(), name: sub.name };
+        // The webhook carries no line items; fetch them so usage charges know where to go.
+        if (subscription.status === 'ACTIVE') {
+          try { subscription = (await adminFor(shop).activeSubscription()) || subscription; } catch (error) { logger.error?.(`[billing] ${shop}: ${error.message}`); }
+        }
+        await store.saveShop(shop, { subscription });
         return store.logEvent(shop, 'subscription', { status: sub.status });
       }
       // Mandatory privacy webhooks.
